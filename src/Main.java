@@ -39,7 +39,6 @@ public class Main {
 		TexturedModel texturedModel = new TexturedModel(model, texture);
 		
 		while (!Display.isCloseRequested()) {
-			// game logic
 			renderer.prepare();
 			shader.start();
 			renderer.render(texturedModel);
