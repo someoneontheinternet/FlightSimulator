@@ -17,10 +17,11 @@ public class Main {
 		Renderer renderer = new Renderer();
 		StaticShader shader = new StaticShader();
 
-		float[] vertices = { -0.5f, 0.5f, 0, // V0
+		float[] vertices = {
+				-0.5f, 0.5f,  0, // V0
 				-0.5f, -0.5f, 0, // V1
-				0.5f, -0.5f, 0, // V2
-				0.5f, 0.5f, 0 // V3
+				0.5f, -0.5f,  0, // V2
+				0.5f, 0.5f,   0 // V3
 		};
 
 		int[] indices = { 0, 1, 3, // Top left triangle (V0,V1,V3)
