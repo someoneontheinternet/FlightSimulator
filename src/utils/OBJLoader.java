@@ -118,9 +118,6 @@ public class OBJLoader {
 		normalsArray[currentVertexPointer * 3 + 1] = currentNorm.y;
 		normalsArray[currentVertexPointer * 3 + 2] = currentNorm.z;
 		
-		
-		
-		
 	}
 
 }
