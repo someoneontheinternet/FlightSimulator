@@ -4,24 +4,34 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL13;
 import org.lwjgl.opengl.GL20;
 import org.lwjgl.opengl.GL30;
+import org.lwjgl.util.vector.Matrix4f;
 
+import entities.Entity;
 import models.RawModel;
 import models.TexturedModel;
+import shaders.StaticShader;
+import utils.Maths;
 
 public class Renderer {
+	
 	public void prepare() {
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT);
 		GL11.glClearColor(1, 0, 0, 1);
 	}
 
-	public void render(TexturedModel texturedModel) {
+	public void render(Entity entity, StaticShader shader) {
 		
+		TexturedModel texturedModel = entity.getModel();
 		RawModel model = texturedModel.getRawModel();
 		
 		GL30.glBindVertexArray(model.getVaoID());
 		
 		GL20.glEnableVertexAttribArray(0);
 		GL20.glEnableVertexAttribArray(1);
+		
+		// Matrix
+		Matrix4f transformationMatrix = Maths.createTransformationMatrix(entity.getPosition(), entity.getRotX(), entity.getRotY(), entity.getRotZ(), entity.getScale());
+		shader.loadTransformationMatrix(transformationMatrix);
 		
 		// Loading Texture
 		GL13.glActiveTexture(GL13.GL_TEXTURE0);	
