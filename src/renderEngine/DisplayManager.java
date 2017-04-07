@@ -11,7 +11,7 @@ public class DisplayManager {
 
 	private static int WIDTH = 680;
 	private static int HEIGHT = 480;
-	private static int FPS_CAP = 120;
+	private static int FPS_CAP = 60;
 	
 	public static void createDisplay() {
 		
