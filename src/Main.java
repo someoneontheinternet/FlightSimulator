@@ -3,6 +3,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import entities.Camera;
 import entities.Entity;
+import entities.Light;
 import models.RawModel;
 import models.TexturedModel;
 import renderEngine.DisplayManager;
@@ -22,14 +23,16 @@ public class Main {
 
 		Renderer renderer = new Renderer(shader);
 
-
 		RawModel model = OBJLoader.loadObj("dragon", loader);
 		
-		ModelTexture texture = new ModelTexture(loader.loadTexture("model/default-blue"));
-		TexturedModel texturedModel = new TexturedModel(model, texture);
-
-		Entity entity = new Entity(texturedModel, new Vector3f(0, 0, -25), 0, 0, 0, 1);
-
+		TexturedModel staticModel = new TexturedModel(model, new ModelTexture(loader.loadTexture("model/default-green")));
+		ModelTexture texture = staticModel.getTexture();
+		texture.setShineDamper(10);
+		texture.setReflectivity(1);
+		
+		Entity entity = new Entity(staticModel, new Vector3f(0, 0, -25), 0, 0, 0, 1);
+		Light light = new Light(new Vector3f(0,0,-20), new Vector3f(1,1,1));
+		
 		Camera camera = new Camera();
 
 		while (!Display.isCloseRequested()) {
@@ -40,7 +43,10 @@ public class Main {
 			entity.increaseRotation(0.0f, 1f, 0.0f);
 			
 			shader.start();
+			
+			shader.loadLight(light);
 			shader.loadViewMatrix(camera);
+			
 			renderer.render(entity, shader);
 			shader.stop();
 			DisplayManager.updateDisplay();
