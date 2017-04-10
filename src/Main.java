@@ -12,28 +12,30 @@ import renderEngine.MasterRenderer;
 import terrain.Terrain;
 import texture.ModelTexture;
 import utils.OBJLoader;
+import utils.OBJSorter;
 
 public class Main {
 
 	public static void main(String[] args) {
 
+		
 		DisplayManager.createDisplay();
 		Loader loader = new Loader();
 
-		RawModel model = OBJLoader.loadObj("cube", loader);
+		RawModel model = OBJLoader.loadObj("fighter-jet", loader);
 
-		TexturedModel staticModel = new TexturedModel(model, new ModelTexture(loader.loadTexture("model/default-red")));
+		TexturedModel staticModel = new TexturedModel(model, new ModelTexture(loader.loadTexture("model/fighter-jet-texture")));
 		ModelTexture texture = staticModel.getTexture();
-		texture.setShineDamper(10);
+		texture.setShineDamper(20);
 		texture.setReflectivity(1);
 
-		Entity entity = new Entity(staticModel, new Vector3f(0, 1, -25), 0, 0, 0, 1);
-		Light light = new Light(new Vector3f(0, 5, -15), new Vector3f(1, 1, 1));
+		Entity entity = new Entity(staticModel, new Vector3f(0, 2, 0), 0, 0, 0, 1);
+		Light light = new Light(new Vector3f(-1, 4, -1), new Vector3f(1, 1, 1));
 
 		Terrain terrain = new Terrain(0, 0, loader, new ModelTexture(loader.loadTexture("model/default-green")));
-		Terrain terrain2 = new Terrain(0, -1, loader, new ModelTexture(loader.loadTexture("model/default-green")));
-		Terrain terrain3 = new Terrain(-1, -1, loader, new ModelTexture(loader.loadTexture("model/default-green")));
-		Terrain terrain4 = new Terrain(-1, 0, loader, new ModelTexture(loader.loadTexture("model/default-green")));
+		Terrain terrain2 = new Terrain(0, -1, loader, new ModelTexture(loader.loadTexture("model/default-red")));
+		Terrain terrain3 = new Terrain(-1, -1, loader, new ModelTexture(loader.loadTexture("model/default-grey")));
+		Terrain terrain4 = new Terrain(-1, 0, loader, new ModelTexture(loader.loadTexture("model/default-blue")));
 
 		Camera camera = new Camera();
 
@@ -42,8 +44,11 @@ public class Main {
 		while (!Display.isCloseRequested()) {
 
 			camera.move();
-			entity.increaseRotation(0.0f, 1f, 0.0f);
+			entity.increaseRotation(0.0f, 0.1f, 0.0f);
 
+			System.out.println("Position: " + camera.getPosition());
+			System.out.println("yaw: " + camera.getYaw());
+			
 			// Adding to render queue
 			renderer.processEntity(entity);
 
@@ -60,6 +65,11 @@ public class Main {
 
 		loader.cleanUp();
 		DisplayManager.closeDisplay();
+		quit();
+	}
+	
+	public static void quit() {
 		System.exit(0);
 	}
+	
 }

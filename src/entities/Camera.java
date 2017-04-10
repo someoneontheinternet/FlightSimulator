@@ -5,27 +5,46 @@ import org.lwjgl.util.vector.Vector3f;
 
 public class Camera {
 
-	private Vector3f position = new Vector3f(0, 2f, 0);
+	private Vector3f position = new Vector3f(0, 3f, 0);
 	private float pitch;
 	private float yaw;
 	private float roll;
+	
+	private final float moveValue = 0.1f;
 
 	public Camera() {
-
+		yaw = 0;
 	}
 
+	public void resetValue() {
+		if (yaw < -180.0f) {
+			yaw = 180.0f;
+		}
+		if (yaw > 180.0f) {
+			yaw = -180.0f;
+		}
+	}
+	
 	public void move() {
 		if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
-			position.z -= 0.1f;
+			if (yaw < 90 || yaw > -90) {
+				position.z -= moveValue;
+			} else {
+				position.z += moveValue;
+			}
 		}
 		if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
-			position.x += 0.1f;
+			position.x += moveValue;
 		}
 		if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
-			position.x -= 0.1f;
+			position.x -= moveValue;
 		}
 		if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
-			position.z += 0.1f;
+			if (yaw < 90 || yaw > -90) {
+				position.z += moveValue;
+			} else {
+				position.z -= moveValue;
+			}
 		}
 		if (Keyboard.isKeyDown(Keyboard.KEY_R)) {
 			position.y += 0.1f;
@@ -33,6 +52,7 @@ public class Camera {
 		if (Keyboard.isKeyDown(Keyboard.KEY_F)) {
 			position.y -= 0.1f;
 		}
+		
 		if (Keyboard.isKeyDown(Keyboard.KEY_LEFT)) {
 			yaw -= 1.0f;
 		}
@@ -45,6 +65,9 @@ public class Camera {
 		if (Keyboard.isKeyDown(Keyboard.KEY_DOWN)) {
 			pitch += 0.3f;
 		}
+		
+		resetValue();
+		
 	}
 
 	public Vector3f getPosition() {

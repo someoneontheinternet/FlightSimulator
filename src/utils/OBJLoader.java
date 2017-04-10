@@ -65,6 +65,8 @@ public class OBJLoader {
 					continue;
 				}
 
+				line = line.replaceAll("//", "/1/");
+
 				String[] currentLine = line.split(" ");
 				String[] vertex1 = currentLine[1].split("/");
 				String[] vertex2 = currentLine[2].split("/");
@@ -73,33 +75,32 @@ public class OBJLoader {
 				processVertex(vertex1, indices, textures, normals, texturesArray, normalsArray);
 				processVertex(vertex2, indices, textures, normals, texturesArray, normalsArray);
 				processVertex(vertex3, indices, textures, normals, texturesArray, normalsArray);
-				
+
 				line = reader.readLine();
-				
+
 			}
 
 			reader.close();
-			
-		} catch (
 
-		Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
+			System.exit(-1);
 		}
 
 		verticesArray = new float[vertices.size() * 3];
 		indicesArray = new int[indices.size()];
-		
+
 		int vertexPointer = 0;
 		for (Vector3f vertex : vertices) {
 			verticesArray[vertexPointer++] = vertex.x;
 			verticesArray[vertexPointer++] = vertex.y;
 			verticesArray[vertexPointer++] = vertex.z;
 		}
-		
+
 		for (int i = 0; i < indices.size(); i++) {
 			indicesArray[i] = indices.get(i);
 		}
-		
+
 		return loader.loadToVAO(verticesArray, texturesArray, normalsArray, indicesArray);
 	}
 
@@ -108,16 +109,16 @@ public class OBJLoader {
 
 		int currentVertexPointer = Integer.parseInt(vertexData[0]) - 1;
 		indices.add(currentVertexPointer);
-		
+
 		Vector2f currentTex = textures.get(Integer.parseInt(vertexData[1]) - 1);
 		textureArray[currentVertexPointer * 2] = currentTex.x;
 		textureArray[currentVertexPointer * 2 + 1] = 1 - currentTex.y;
-		
+
 		Vector3f currentNorm = normals.get(Integer.parseInt(vertexData[2]) - 1);
 		normalsArray[currentVertexPointer * 3] = currentNorm.x;
 		normalsArray[currentVertexPointer * 3 + 1] = currentNorm.y;
 		normalsArray[currentVertexPointer * 3 + 2] = currentNorm.z;
-		
+
 	}
 
 }
