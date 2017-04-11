@@ -12,6 +12,8 @@ uniform vec3 lightColour;
 uniform float shineDamper;
 uniform float reflectivity;
 
+
+
 void main(void){
 
 	vec3 unitNormal = normalize(surfaceNormal);
@@ -30,6 +32,11 @@ void main(void){
 	float dampedFactor = pow(specularFactor, shineDamper);
 
 	vec3 finalSpecular = dampedFactor * lightColour * reflectivity;
+
+	vec4 textureColour = texture(textureSampler, pass_textureCoords);
+	if (textureColour.a < 0.5) {
+		discard;
+	}
 
 	out_Color = vec4(diffuse, 1.0) * texture(textureSampler, pass_textureCoords) + vec4(finalSpecular, 1.0);
 

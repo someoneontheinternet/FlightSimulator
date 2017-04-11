@@ -8,8 +8,8 @@ import utils.Maths;
 
 public class StaticShader extends ShaderProgram{
     
-   private static final String VERTEX_FILE = "src/shaders/vertexShader.txt";
-   private static final String FRAGMENT_FILE = "src/shaders/fragmentShader.txt";
+   private static final String VERTEX_FILE = "src/shaders/vertexShader.glsl";
+   private static final String FRAGMENT_FILE = "src/shaders/fragmentShader.glsl";
     
    private int location_transformationMatrix;
    private int location_projectionMatrix;
@@ -18,6 +18,8 @@ public class StaticShader extends ShaderProgram{
    private int location_lightColour;
    private int location_shineDamper;
    private int location_reflectivity;
+   private int location_useFakeLighting;
+   
 
    public StaticShader() {
        super(VERTEX_FILE, FRAGMENT_FILE);
@@ -39,7 +41,12 @@ public class StaticShader extends ShaderProgram{
        location_lightColour = super.getUniformLocation("lightColour");
        location_shineDamper = super.getUniformLocation("shineDamper");
        location_reflectivity = super.getUniformLocation("reflectivity");
-        
+       location_useFakeLighting = super.getUniformLocation("useFakeLighting");
+      
+   }
+   
+   public void loadFakeLightingVariable(boolean state) {
+	   super.loadBoolean(location_useFakeLighting, state);
    }
     
    public void loadShineVariables(float damper,float reflectivity){

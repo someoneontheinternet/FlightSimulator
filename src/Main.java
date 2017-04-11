@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Random;
+
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -12,12 +15,12 @@ import renderEngine.MasterRenderer;
 import terrain.Terrain;
 import texture.ModelTexture;
 import utils.OBJLoader;
-import utils.OBJSorter;
 
 public class Main {
 
 	public static void main(String[] args) {
 
+		Random r = new Random();
 		
 		DisplayManager.createDisplay();
 		Loader loader = new Loader();
@@ -32,11 +35,31 @@ public class Main {
 		Entity entity = new Entity(staticModel, new Vector3f(0, 2, 0), 0, 0, 0, 1);
 		Light light = new Light(new Vector3f(-1, 4, -1), new Vector3f(1, 1, 1));
 
-		Terrain terrain = new Terrain(0, 0, loader, new ModelTexture(loader.loadTexture("model/default-green")));
-		Terrain terrain2 = new Terrain(0, -1, loader, new ModelTexture(loader.loadTexture("model/default-red")));
-		Terrain terrain3 = new Terrain(-1, -1, loader, new ModelTexture(loader.loadTexture("model/default-grey")));
-		Terrain terrain4 = new Terrain(-1, 0, loader, new ModelTexture(loader.loadTexture("model/default-blue")));
+		Terrain terrain = new Terrain(0, 0, loader, new ModelTexture(loader.loadTexture("model/default-noise")));
+		Terrain terrain2 = new Terrain(0, -1, loader, new ModelTexture(loader.loadTexture("model/default-noise")));
+		Terrain terrain3 = new Terrain(-1, -1, loader, new ModelTexture(loader.loadTexture("model/default-noise")));
+		Terrain terrain4 = new Terrain(-1, 0, loader, new ModelTexture(loader.loadTexture("model/default-noise")));
 
+		// Gen grass
+		
+		ArrayList<Entity> grassObjects = new ArrayList<>();
+		
+		RawModel grassModel = OBJLoader.loadObj("grassModel", loader);
+
+		TexturedModel staticGrassModel = new TexturedModel(grassModel, new ModelTexture(loader.loadTexture("model/grassTexture")));
+		ModelTexture grassTexture = staticModel.getTexture();
+		texture.setShineDamper(20);
+		texture.setReflectivity(1);
+		texture.setHasTransparency(true);
+		texture.setUseFalseLighting(true);
+		
+		for (int i = 0; i < 10; i++) {
+			Entity grass = new Entity(staticGrassModel, new Vector3f((r.nextFloat() - 0.5f) * 50, 0, (r.nextFloat() - 0.5f) * 50), 0, 0, 0, 1);
+			grassObjects.add(grass);
+		}
+		
+		//
+		
 		Camera camera = new Camera();
 
 		MasterRenderer renderer = new MasterRenderer();
@@ -44,14 +67,17 @@ public class Main {
 		while (!Display.isCloseRequested()) {
 
 			camera.move();
-			entity.increaseRotation(0.0f, 0.1f, 0.0f);
+			//entity.increaseRotation(0.0f, 0.1f, 0.0f);
 
-			System.out.println("Position: " + camera.getPosition());
-			System.out.println("yaw: " + camera.getYaw());
-			
 			// Adding to render queue
 			renderer.processEntity(entity);
 
+			// grass
+			
+			for (Entity grass : grassObjects) {
+				renderer.processEntity(grass);
+			}
+			
 			renderer.processTerrain(terrain);
 			renderer.processTerrain(terrain2);
 			renderer.processTerrain(terrain3);
