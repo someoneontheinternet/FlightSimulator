@@ -35,10 +35,10 @@ public class Main {
 		Entity entity = new Entity(staticModel, new Vector3f(0, 2, 0), 0, 0, 0, 1);
 		Light light = new Light(new Vector3f(-1, 4, -1), new Vector3f(1, 1, 1));
 
-		Terrain terrain = new Terrain(0, 0, loader, new ModelTexture(loader.loadTexture("model/default-noise")));
-		Terrain terrain2 = new Terrain(0, -1, loader, new ModelTexture(loader.loadTexture("model/default-noise")));
-		Terrain terrain3 = new Terrain(-1, -1, loader, new ModelTexture(loader.loadTexture("model/default-noise")));
-		Terrain terrain4 = new Terrain(-1, 0, loader, new ModelTexture(loader.loadTexture("model/default-noise")));
+		Terrain terrain = new Terrain(0, 0, loader, new ModelTexture(loader.loadTexture("model/default-red")));
+		Terrain terrain2 = new Terrain(0, -1, loader, new ModelTexture(loader.loadTexture("model/default-blue")));
+		Terrain terrain3 = new Terrain(-1, -1, loader, new ModelTexture(loader.loadTexture("model/default-green")));
+		Terrain terrain4 = new Terrain(-1, 0, loader, new ModelTexture(loader.loadTexture("model/default-grey")));
 
 		// Gen grass
 		
@@ -72,11 +72,9 @@ public class Main {
 			// Adding to render queue
 			renderer.processEntity(entity);
 
-			// grass
-			
-			for (Entity grass : grassObjects) {
-				renderer.processEntity(grass);
-			}
+			//for (Entity grass : grassObjects) {
+				//renderer.processEntity(grass);
+			//}
 			
 			renderer.processTerrain(terrain);
 			renderer.processTerrain(terrain2);
