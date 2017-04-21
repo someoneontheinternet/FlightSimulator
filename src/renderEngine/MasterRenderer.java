@@ -18,10 +18,14 @@ import shaders.TerrainShader;
 import terrain.Terrain;
 
 public class MasterRenderer {
-	private static final float FOV = 70;
+	private static final float FOV = 80;
 	private static final float NEAR_PLANE = 0.1f;
 	private static final float FAR_PLANE = 1000;
 
+	private static final float skyRED = 0.7f;
+	private static final float skyGREEN = 0.7f;
+	private static final float skyBLUE = 0.7f;
+	
 	private Matrix4f projectionMatrix;
 
 	private StaticShader shader = new StaticShader();
@@ -53,11 +57,13 @@ public class MasterRenderer {
 	public void render(Light sun, Camera camera) {
 		prepare();
 		shader.start();
+		shader.loadSkyColour(skyRED, skyGREEN, skyBLUE);
 		shader.loadLight(sun);
 		shader.loadViewMatrix(camera);
 		renderer.render(entities);
 		shader.stop();
 		terrainShader.start();
+		terrainShader.loadSkyColour(skyRED, skyGREEN, skyBLUE);
 		terrainShader.loadLight(sun);
 		terrainShader.loadViewMatrix(camera);
 		terrainRenderer.render(terrains);
@@ -90,7 +96,7 @@ public class MasterRenderer {
 	public void prepare() {
 		GL11.glEnable(GL11.GL_DEPTH_TEST);
 		GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-		GL11.glClearColor(0.49f, 89f, 0.98f, 1);
+		GL11.glClearColor(skyRED, skyGREEN, skyBLUE, 1);
 	}
 
 	private void createProjectionMatrix() {
