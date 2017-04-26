@@ -7,6 +7,7 @@ import org.lwjgl.util.vector.Vector3f;
 import entities.Camera;
 import entities.Entity;
 import entities.Light;
+import entities.Player;
 import models.RawModel;
 import models.TexturedModel;
 import renderEngine.DisplayManager;
@@ -14,6 +15,8 @@ import renderEngine.Loader;
 import renderEngine.MasterRenderer;
 import terrain.Terrain;
 import texture.ModelTexture;
+import texture.TerrainTexture;
+import texture.TerrainTexturePack;
 import utils.ModelData;
 import utils.OBJLoader;
 
@@ -26,64 +29,56 @@ public class Main {
 		DisplayManager.createDisplay();
 		Loader loader = new Loader();
 
+		// Terrain
+		TerrainTexture backgroundTexture = new TerrainTexture(loader.loadTexture("default-green"));
+		TerrainTexture rTexture = new TerrainTexture(loader.loadTexture("default-red"));
+		TerrainTexture gTexture = new TerrainTexture(loader.loadTexture("default-yellow"));
+		TerrainTexture bTexture = new TerrainTexture(loader.loadTexture("default-blue"));
+		TerrainTexturePack ttp = new TerrainTexturePack(backgroundTexture, rTexture, gTexture, bTexture);
+		TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("blendMap"));
 		
+		Terrain terrain1 = new Terrain(0, -1, loader, ttp, blendMap);
+		
+		// Tree Model
+		ModelData dTree = OBJLoader.loadOBJ("d-tree");
+		RawModel dTreeModel = loader.loadToVAO(dTree.getVertices(), dTree.getTextureCoords(), dTree.getNormals(), dTree.getIndices());
+		
+		// Fighter Jet
 		ModelData fj = OBJLoader.loadOBJ("fighter-jet");
 		RawModel fjModel = loader.loadToVAO(fj.getVertices(), fj.getTextureCoords(), fj.getNormals(), fj.getIndices());
-
-		TexturedModel staticModel = new TexturedModel(fjModel, new ModelTexture(loader.loadTexture("model/fighter-jet-texture")));
+		TexturedModel staticDTree = new TexturedModel(dTreeModel, new ModelTexture(loader.loadTexture("d-tree-texture")));
+		ModelTexture dTreeTexture = staticDTree.getTexture();
+		dTreeTexture.setShineDamper(10);
+		dTreeTexture.setReflectivity(1);
+		
+		Entity dTreeEntity = new Entity(staticDTree, new Vector3f(0, 0, 0), 0, 0, 0, 1);
+		
+		TexturedModel staticModel = new TexturedModel(fjModel, new ModelTexture(loader.loadTexture("fighter-jet-texture")));
 		ModelTexture texture = staticModel.getTexture();
 		texture.setShineDamper(20);
 		texture.setReflectivity(1);
 
-		Entity entity = new Entity(staticModel, new Vector3f(0, 2, 0), 0, 0, 0, 1);
-		Light light = new Light(new Vector3f(-1, 4, -1), new Vector3f(1, 1, 1));
+		Player player = new Player(staticModel, new Vector3f(0, 2, 0), 0, 0, 0, 1);
+		
+		// Light
+		Light light = new Light(new Vector3f(50, 10000, 50), new Vector3f(1, 1, 1));
 
-		ArrayList<Terrain> terrainList = new ArrayList<>();
-		
-		terrainList.add(new Terrain(0, 0, loader, new ModelTexture(loader.loadTexture("model/default-red"))));
-		terrainList.add(new Terrain(0, -1, loader, new ModelTexture(loader.loadTexture("model/default-blue"))));
-		terrainList.add(new Terrain(-1, -1, loader, new ModelTexture(loader.loadTexture("model/default-green"))));
-		terrainList.add(new Terrain(-1, 0, loader, new ModelTexture(loader.loadTexture("model/default-grey"))));
-
-		// Gen grass
-		
-		ArrayList<Entity> grassObjects = new ArrayList<>();
-		
-		
-		ModelData grassData = OBJLoader.loadOBJ("grassModel");
-		RawModel grassModel = loader.loadToVAO(grassData.getVertices(), grassData.getTextureCoords(), grassData.getNormals(), grassData.getIndices());
-
-		TexturedModel staticGrassModel = new TexturedModel(grassModel, new ModelTexture(loader.loadTexture("model/grassTexture")));
-		ModelTexture grassTexture = staticModel.getTexture();
-		texture.setShineDamper(20);
-		texture.setReflectivity(1);
-		texture.setHasTransparency(true);
-		texture.setUseFalseLighting(true);
-		
-		//for (int i = 0; i < 1000; i++) {
-			//Entity grass = new Entity(staticGrassModel, new Vector3f((r.nextFloat() - 0.5f) * 500, 0, (r.nextFloat() - 0.5f) * 500), 0, 0, 0, 1);
-			//grassObjects.add(grass);
-		//}
-		
-		Camera camera = new Camera();
+		Camera camera = new Camera(player);
 
 		MasterRenderer renderer = new MasterRenderer();
 		
 		while (!Display.isCloseRequested()) {
 
+			player.move();
 			camera.move();
-			//entity.increaseRotation(0.0f, 0.1f, 0.0f);
 
 			// Adding to render queue
-			renderer.processEntity(entity);
-
-			for (Entity grass : grassObjects) {
-				renderer.processEntity(grass);
-			}
+			renderer.processEntity(player);
+			renderer.processEntity(dTreeEntity);
 			
-			terrainList.forEach(t -> {
-				renderer.processTerrain(t);
-			});
+			// Adding to terrain render queue
+			renderer.processTerrain(terrain1);
+
 			
 			renderer.render(light, camera);
 			DisplayManager.updateDisplay();
