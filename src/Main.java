@@ -40,19 +40,19 @@ public class Main {
 		Terrain terrain1 = new Terrain(0, -1, loader, ttp, blendMap);
 		
 		// Tree Model
-		ModelData dTree = OBJLoader.loadOBJ("d-tree");
+		ModelData dTree = OBJLoader.loadOBJ("cherry-tree");
 		RawModel dTreeModel = loader.loadToVAO(dTree.getVertices(), dTree.getTextureCoords(), dTree.getNormals(), dTree.getIndices());
+		TexturedModel staticDTree = new TexturedModel(dTreeModel, new ModelTexture(loader.loadTexture("cherry-texture")));
+		ModelTexture dTreeTexture = staticDTree.getTexture();
+		dTreeTexture.setShineDamper(50);
+		dTreeTexture.setReflectivity(0);
+		
+		Entity dTreeEntity = new Entity(staticDTree, new Vector3f(0, 0, 0), 0, 0, 0, 1);
 		
 		// Fighter Jet
 		ModelData fj = OBJLoader.loadOBJ("fighter-jet");
 		RawModel fjModel = loader.loadToVAO(fj.getVertices(), fj.getTextureCoords(), fj.getNormals(), fj.getIndices());
-		TexturedModel staticDTree = new TexturedModel(dTreeModel, new ModelTexture(loader.loadTexture("d-tree-texture")));
-		ModelTexture dTreeTexture = staticDTree.getTexture();
-		dTreeTexture.setShineDamper(10);
-		dTreeTexture.setReflectivity(1);
-		
-		Entity dTreeEntity = new Entity(staticDTree, new Vector3f(0, 0, 0), 0, 0, 0, 1);
-		
+
 		TexturedModel staticModel = new TexturedModel(fjModel, new ModelTexture(loader.loadTexture("fighter-jet-texture")));
 		ModelTexture texture = staticModel.getTexture();
 		texture.setShineDamper(20);
@@ -64,7 +64,7 @@ public class Main {
 		Light light = new Light(new Vector3f(50, 10000, 50), new Vector3f(1, 1, 1));
 
 		Camera camera = new Camera(player);
-
+		
 		MasterRenderer renderer = new MasterRenderer();
 		
 		while (!Display.isCloseRequested()) {

@@ -38,6 +38,7 @@ void main(void){
 	vec3 unitLightVector = normalize(vec3(2.5, 1, 2.5));
 
 	float brightness = dot(surfaceNormal, unitLightVector);
+	brightness = brightness + ((-0.5) * sqrt(brightness) + 0.5);
 
 	vec3 diffuse = brightness * lightColour;
 
