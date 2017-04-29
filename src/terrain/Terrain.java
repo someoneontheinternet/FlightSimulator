@@ -1,10 +1,10 @@
 package terrain;
 
 import models.RawModel;
-import renderEngine.Loader;
 import texture.ModelTexture;
 import texture.TerrainTexture;
 import texture.TerrainTexturePack;
+import utils.Loader;
 
 public class Terrain {
 

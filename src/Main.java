@@ -11,12 +11,12 @@ import entities.Player;
 import models.RawModel;
 import models.TexturedModel;
 import renderEngine.DisplayManager;
-import renderEngine.Loader;
 import renderEngine.MasterRenderer;
 import terrain.Terrain;
 import texture.ModelTexture;
 import texture.TerrainTexture;
 import texture.TerrainTexturePack;
+import utils.Loader;
 import utils.ModelData;
 import utils.OBJLoader;
 
@@ -49,7 +49,6 @@ public class Main {
 		ModelTexture dTreeTexture = staticDTree.getTexture();
 		dTreeTexture.setShineDamper(50);
 		dTreeTexture.setReflectivity(0);
-		
 		
 		ArrayList<Entity> treeList = new ArrayList<>();
 		

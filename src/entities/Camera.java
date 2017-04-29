@@ -84,8 +84,8 @@ public class Camera {
 		distanceFromPlayer -= zoomLevel;
 		if (distanceFromPlayer < 10f)
 			distanceFromPlayer = 10f;
-		else if (distanceFromPlayer > 125f)
-			distanceFromPlayer = 125f;
+		else if (distanceFromPlayer > 200f)
+			distanceFromPlayer = 200f;
 
 	}
 
