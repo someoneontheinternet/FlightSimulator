@@ -2,7 +2,7 @@
 
 in vec2 pass_textureCoords;
 in vec3 surfaceNormal;
-in vec3 toLightVector;
+in vec3 toLightVector[4];
 in vec3 toCameraVector;
 in float visibility;
 
@@ -14,7 +14,7 @@ uniform sampler2D gTexture;
 uniform sampler2D bTexture;
 uniform sampler2D blendMap;
 
-uniform vec3 lightColour;
+uniform vec3 lightColour[4];
 uniform float shineDamper;
 uniform float reflectivity;
 uniform vec3 skyColour;
@@ -35,23 +35,29 @@ void main(void){
 
 	// Diffuse Lighting Calculation
 	vec3 unitNormal = normalize(surfaceNormal);
-	vec3 unitLightVector = normalize(vec3(2.5, 1, 2.5));
-
-	float brightness = dot(surfaceNormal, unitLightVector);
-	brightness = clamp(brightness, 0.35, 1);
-	vec3 diffuse = brightness * lightColour;
-
 	vec3 unitVectorToCamera = normalize(toCameraVector);
-	vec3 lightDirection = -unitLightVector;
-	vec3 reflectedLightDirection = reflect(lightDirection, unitNormal);
 
-	float specularFactor = dot(reflectedLightDirection, unitVectorToCamera);
-	specularFactor = max(specularFactor, 0.0);
-	float dampedFactor = pow(specularFactor, shineDamper);
+	vec3 totalDiffuse = vec3(0.0);
+	vec3 totalSpecular = vec3(0.0);
 
-	vec3 finalSpecular = dampedFactor * lightColour * reflectivity;
+	for (int i = 0; i < 4; i++) {
+		vec3 unitLightVector = normalize(toLightVector[i]);
+		float brightness = dot(unitNormal, unitLightVector);
+		brightness = clamp(brightness, 0, 1);
+		vec3 lightDirection = -unitLightVector;
+		vec3 reflectedLightDirection = reflect(lightDirection, unitNormal);
+		float specularFactor = dot(reflectedLightDirection, unitVectorToCamera);
+		specularFactor = max(specularFactor, 0.0);
+		float dampedFactor = pow(specularFactor, shineDamper);
 
-	out_Color = vec4(diffuse, 1.0) * totalColour + vec4(finalSpecular, 1.0);
+		totalDiffuse += brightness * lightColour[i];
+		totalSpecular += dampedFactor * lightColour[i] * reflectivity;
+	}
+
+	totalDiffuse = max(totalDiffuse / 2, 0.2);
+	totalSpecular /= 2;
+
+	out_Color = vec4(totalDiffuse, 1.0) * totalColour + vec4(totalSpecular, 1.0);
 	out_Color = mix(vec4(skyColour, 1.0), out_Color, visibility);
 
 }

@@ -43,7 +43,7 @@ public class Main {
 
 		ArrayList<Terrain> terrainList = new ArrayList<>();
 
-		int terrainCount = 5;
+		int terrainCount = 1;
 		
 		for (int i = -terrainCount; i <= terrainCount; i++) {
 			for (int j = -terrainCount; j <= terrainCount; j++) {
@@ -90,7 +90,11 @@ public class Main {
 		Player player = new Player(staticModel, new Vector3f(0, 2, 0), 0, 0, 0, 1);
 
 		// Light
-		Light light = new Light(new Vector3f(500, 10000, 500), new Vector3f(1, 1, 1));
+		List<Light> lights = new ArrayList<>();
+		lights.add(new Light(new Vector3f(500, 10000, 500), new Vector3f(1, 1, 1)));
+		lights.add(new Light(new Vector3f(-500, 10000, -500), new Vector3f(1, 1, 1)));
+		
+		
 		Camera camera = new Camera(player);
 		MasterRenderer renderer = new MasterRenderer();
 
@@ -120,7 +124,7 @@ public class Main {
 				renderer.processEntity(e);
 			}
 
-			renderer.render(light, camera);
+			renderer.render(lights, camera);
 
 			System.out.println(DisplayManager.getFrameTimeSeconds() * 1000 + "ms");
 			DisplayManager.updateDisplay();
