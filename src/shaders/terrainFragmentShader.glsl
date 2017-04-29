@@ -38,8 +38,7 @@ void main(void){
 	vec3 unitLightVector = normalize(vec3(2.5, 1, 2.5));
 
 	float brightness = dot(surfaceNormal, unitLightVector);
-	brightness = brightness + ((-0.5) * sqrt(brightness) + 0.5);
-
+	brightness = clamp(brightness, 0.35, 1);
 	vec3 diffuse = brightness * lightColour;
 
 	vec3 unitVectorToCamera = normalize(toCameraVector);
