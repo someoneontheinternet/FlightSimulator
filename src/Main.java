@@ -30,14 +30,17 @@ public class Main {
 		Loader loader = new Loader();
 
 		// Terrain
-		TerrainTexture backgroundTexture = new TerrainTexture(loader.loadTexture("default-green"));
-		TerrainTexture rTexture = new TerrainTexture(loader.loadTexture("default-red"));
-		TerrainTexture gTexture = new TerrainTexture(loader.loadTexture("default-yellow"));
-		TerrainTexture bTexture = new TerrainTexture(loader.loadTexture("default-blue"));
+		TerrainTexture backgroundTexture = new TerrainTexture(loader.loadTexture("grassy"));
+		TerrainTexture rTexture = new TerrainTexture(loader.loadTexture("mud"));
+		TerrainTexture gTexture = new TerrainTexture(loader.loadTexture("grassFlowers"));
+		TerrainTexture bTexture = new TerrainTexture(loader.loadTexture("path"));
 		TerrainTexturePack ttp = new TerrainTexturePack(backgroundTexture, rTexture, gTexture, bTexture);
 		TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("blendMap"));
 		
 		Terrain terrain1 = new Terrain(0, -1, loader, ttp, blendMap);
+		Terrain terrain2 = new Terrain(0, 0, loader, ttp, blendMap);
+		Terrain terrain3 = new Terrain(-1, 0, loader, ttp, blendMap);
+		Terrain terrain4 = new Terrain(-1, -1, loader, ttp, blendMap);
 		
 		// Tree Model
 		ModelData dTree = OBJLoader.loadOBJ("cherry-tree");
@@ -47,7 +50,13 @@ public class Main {
 		dTreeTexture.setShineDamper(50);
 		dTreeTexture.setReflectivity(0);
 		
-		Entity dTreeEntity = new Entity(staticDTree, new Vector3f(0, 0, 0), 0, 0, 0, 1);
+		
+		ArrayList<Entity> treeList = new ArrayList<>();
+		
+		for (int i = 0; i < 1000; i++) {
+			Entity treeModel = new Entity(staticDTree, new Vector3f((float) ((Math.random() - 0.5) * 1000), -0.5f, (float) ((Math.random() - 0.5) * 1000)), 0, (float) (Math.random() * 360), 0, (float) ((Math.random() * 0.2) + 0.9f));
+			treeList.add(treeModel);
+		}
 		
 		// Fighter Jet
 		ModelData fj = OBJLoader.loadOBJ("fighter-jet");
@@ -61,7 +70,7 @@ public class Main {
 		Player player = new Player(staticModel, new Vector3f(0, 2, 0), 0, 0, 0, 1);
 		
 		// Light
-		Light light = new Light(new Vector3f(50, 10000, 50), new Vector3f(1, 1, 1));
+		Light light = new Light(new Vector3f(500, 10000, 500), new Vector3f(1, 1, 1));
 
 		Camera camera = new Camera(player);
 		
@@ -74,10 +83,17 @@ public class Main {
 
 			// Adding to render queue
 			renderer.processEntity(player);
-			renderer.processEntity(dTreeEntity);
+			
+			// Trees
+			for (Entity e : treeList) {
+				renderer.processEntity(e);
+			}
 			
 			// Adding to terrain render queue
 			renderer.processTerrain(terrain1);
+			renderer.processTerrain(terrain2);
+			renderer.processTerrain(terrain3);
+			renderer.processTerrain(terrain4);
 
 			
 			renderer.render(light, camera);
