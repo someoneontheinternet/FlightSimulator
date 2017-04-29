@@ -8,6 +8,7 @@ import java.util.Map;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.vector.Matrix4f;
+import org.lwjgl.util.vector.Vector2f;
 
 import entities.Camera;
 import entities.Entity;
@@ -18,6 +19,10 @@ import shaders.TerrainShader;
 import terrain.Terrain;
 
 public class MasterRenderer {
+
+	private static final float RENDER_DISTANCE = 325;
+	private static final float TERRAIN_RENDER_DISTANCE = Terrain.SIZE * 2;
+	
 	private static final float FOV = 80;
 	private static final float NEAR_PLANE = 0.1f;
 	private static final float FAR_PLANE = 1000;
@@ -36,6 +41,9 @@ public class MasterRenderer {
 
 	private Map<TexturedModel, List<Entity>> entities = new HashMap<TexturedModel, List<Entity>>();
 	private List<Terrain> terrains = new ArrayList<Terrain>();
+	
+	private float renderOriginX;
+	private float renderOriginZ;
 
 	public MasterRenderer() {
 		enableCulling();
@@ -74,10 +82,13 @@ public class MasterRenderer {
 	}
 
 	public void processTerrain(Terrain terrain) {
-		terrains.add(terrain);
+		if (terrain.calculateDistanceFrom(renderOriginX, renderOriginZ) < TERRAIN_RENDER_DISTANCE)
+			terrains.add(terrain);
 	}
 
 	public void processEntity(Entity entity) {
+		if (entity.calculateDistanceFrom(renderOriginX, renderOriginZ) > RENDER_DISTANCE) 
+			return;
 		TexturedModel entityModel = entity.getModel();
 		List<Entity> batch = entities.get(entityModel);
 		if (batch != null) {
@@ -87,6 +98,11 @@ public class MasterRenderer {
 			newBatch.add(entity);
 			entities.put(entityModel, newBatch);
 		}
+	}
+	
+	public void setOrigin(float x, float z) {
+		renderOriginX = x;
+		renderOriginZ = z;
 	}
 
 	public void cleanUp() {

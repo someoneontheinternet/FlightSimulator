@@ -30,13 +30,18 @@ public class Entity {
 		rotX += dx;
 		rotY += dy;
 		rotZ += dz;
-		
 	}
 	
+	public float calculateDistanceFrom(float x, float z) {
 	
-	
-	
-	
+		float dx = (float) Math.pow(Math.abs(this.position.x - x), 2);
+		float dz = (float) Math.pow(Math.abs(this.position.z - z), 2);
+		
+		float ans = (float) Math.sqrt( dx  + dz );
+		
+		return ans;
+		
+	} 
 	
 	public TexturedModel getModel() {
 		return model;

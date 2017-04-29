@@ -34,6 +34,13 @@ public class Loader {
 		unbindVAO();
 		return new RawModel(vaoID, indices.length);
 	}
+	
+	public RawModel loadToVAO(float[] positions) {
+		int vaoID = createVAO();
+		this.storeDataInAttributeList(0, 2, positions);
+		unbindVAO();
+		return new RawModel(vaoID, positions.length / 2);
+	}
 
 	public void cleanUp() {
 		for (int vao : vaos) {
@@ -46,7 +53,7 @@ public class Loader {
 			GL11.glDeleteTextures(text);
 		}
 	}
-
+	
 	public int loadTexture(String filename) {
 		Texture texture = null;
 		
