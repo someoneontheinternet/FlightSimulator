@@ -25,6 +25,7 @@ public class StaticShader extends ShaderProgram{
    private int location_reflectivity;
    private int location_useFakeLighting;
    private int location_skyColour;
+   private int location_lightNumber;
 
    public StaticShader() {
        super(VERTEX_FILE, FRAGMENT_FILE);
@@ -56,7 +57,7 @@ public class StaticShader extends ShaderProgram{
        }
        
    }
-   
+
    public void loadSkyColour(float r, float g, float b) {
 	   super.loadVector(location_skyColour, new Vector3f(r, g, b));
    }

@@ -20,7 +20,7 @@ import terrain.Terrain;
 
 public class MasterRenderer {
 
-	private static final float RENDER_DISTANCE = 325;
+	private static final float RENDER_DISTANCE = 315;
 	private static final float TERRAIN_RENDER_DISTANCE = Terrain.SIZE * 2;
 	
 	private static final float FOV = 80;

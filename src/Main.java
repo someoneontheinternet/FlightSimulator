@@ -30,10 +30,13 @@ public class Main {
 
 		Random r = new Random();
 
+		// Creating Window
+		System.out.println("Creating Window...");
 		DisplayManager.createDisplay();
 		Loader loader = new Loader();
-
+		
 		// Terrain
+		System.out.println("Loading Terrain texture...");
 		TerrainTexture backgroundTexture = new TerrainTexture(loader.loadTexture("grassy"));
 		TerrainTexture rTexture = new TerrainTexture(loader.loadTexture("mud"));
 		TerrainTexture gTexture = new TerrainTexture(loader.loadTexture("grassFlowers"));
@@ -43,14 +46,20 @@ public class Main {
 
 		ArrayList<Terrain> terrainList = new ArrayList<>();
 
-		int terrainCount = 1;
+		// Terrain Generation
 		
+		System.out.println("Generating Terrain...");
+		
+		int terrainCount = 1;
 		for (int i = -terrainCount; i <= terrainCount; i++) {
 			for (int j = -terrainCount; j <= terrainCount; j++) {
 				Terrain terrain = new Terrain(i, j, loader, ttp, blendMap, "height-map");
 				terrainList.add(terrain);
 			}
+			System.out.println(((double) (i + terrainCount) / (double) (terrainCount * 2)) * 100 + "%");
 		}
+		
+		System.out.println("Loading Models");
 
 		// Tree Model
 		ModelData dTree = OBJLoader.loadOBJ("cherry-tree");
@@ -60,7 +69,7 @@ public class Main {
 				new ModelTexture(loader.loadTexture("cherry-texture")));
 		ModelTexture dTreeTexture = staticDTree.getTexture();
 		dTreeTexture.setShineDamper(50);
-		dTreeTexture.setReflectivity(0);
+		dTreeTexture.setReflectivity(1);
 
 		// Fighter Jet
 		ModelData fj = OBJLoader.loadOBJ("fighter-jet");
@@ -76,28 +85,32 @@ public class Main {
 		ArrayList<Entity> treeList = new ArrayList<>();
 
 		for (int i = 0; i < 1000; i++) {
-			
 			float rx = (float) ((Math.random() - 0.5f) * 1000);
 			float rz = (float) ((Math.random() - 0.5f) * 1000);
-			
+
 			float y = onTerrain(terrainList, rx, rz).getHeightOfTerrain(rx, rz);
 			Entity treeModel = new Entity(staticDTree, new Vector3f(rx, y - 1f, rz), 0, (float) (Math.random() * 360),
 					0, (float) ((Math.random() * 0.2) + 0.9f));
-			
+
 			treeList.add(treeModel);
 		}
 
 		Player player = new Player(staticModel, new Vector3f(0, 2, 0), 0, 0, 0, 1);
 
+		System.out.println("Setting up renderers...");
+		
 		// Light
 		List<Light> lights = new ArrayList<>();
-		lights.add(new Light(new Vector3f(500, 10000, 500), new Vector3f(1, 1, 1)));
-		lights.add(new Light(new Vector3f(-500, 10000, -500), new Vector3f(1, 1, 1)));
-		
-		
+		lights.add(new Light(new Vector3f(500, 10000, 500), new Vector3f(1f, 1f, 1f)));
+		lights.add(new Light(new Vector3f(-500, -10000, -500), new Vector3f(0.3f, 0.3f, 0.3f)));
+
 		Camera camera = new Camera(player);
 		MasterRenderer renderer = new MasterRenderer();
 
+		System.out.println("Starting Gameloop:");
+		
+		List<Float> averageFrameTime = new ArrayList<>();
+		
 		while (!Display.isCloseRequested()) {
 
 			// find the terrain that player is on
@@ -107,7 +120,7 @@ public class Main {
 
 			// set render distance origin
 			renderer.setOrigin(playerX, playerZ);
-			
+
 			for (Terrain t : terrainList) {
 				// Adding to terrain render queue
 				renderer.processTerrain(t);
@@ -125,11 +138,22 @@ public class Main {
 			}
 
 			renderer.render(lights, camera);
-
-			System.out.println(DisplayManager.getFrameTimeSeconds() * 1000 + "ms");
+			
+			if (averageFrameTime.size() < 10) {
+				averageFrameTime.add(DisplayManager.getFrameTimeSeconds());
+			} else {
+				float total = 0;
+				for (float time : averageFrameTime)
+					total += time;
+				System.out.println("Frame time: " + (total / 10) * 1000 + "ms");	
+				averageFrameTime.clear();			
+			}
+			
 			DisplayManager.updateDisplay();
 		}
 
+		System.out.println("Exiting Game Loop.");
+		
 		renderer.cleanUp();
 
 		loader.cleanUp();
@@ -140,8 +164,7 @@ public class Main {
 	public static Terrain onTerrain(List<Terrain> terrainList, float x, float z) {
 		Terrain playerOn = terrainList.get(0);
 		for (Terrain t : terrainList) {
-			if (t.getX() <= x && t.getX() - t.SIZE <= x && t.getZ() <= z
-					&& t.getZ() - t.SIZE <= z) {
+			if (t.getX() <= x && t.getX() - t.SIZE <= x && t.getZ() <= z && t.getZ() - t.SIZE <= z) {
 				playerOn = t;
 			}
 		}

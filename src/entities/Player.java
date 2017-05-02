@@ -11,7 +11,7 @@ public class Player extends Entity {
 
 	private static final float RUN_SPEED = 60;
 	private static final float TURN_SPEED = 45;
-	private static final float GRAVITY = -4.9f;
+	private static final float GRAVITY = -2.9f;
 
 	private float currentSpeed = 0;
 	private float currentTurnSpeed = 0;
@@ -65,10 +65,6 @@ public class Player extends Entity {
 			this.currentTurnSpeed = TURN_SPEED;
 		} else {
 			this.currentTurnSpeed = 0;
-		}
-
-		if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
-			jump();
 		}
 
 	}

@@ -43,7 +43,7 @@ void main(void){
 	for (int i = 0; i < 4; i++) {
 		vec3 unitLightVector = normalize(toLightVector[i]);
 		float brightness = dot(unitNormal, unitLightVector);
-		brightness = clamp(brightness, 0, 1);
+		brightness = max(brightness, 0);
 		vec3 lightDirection = -unitLightVector;
 		vec3 reflectedLightDirection = reflect(lightDirection, unitNormal);
 		float specularFactor = dot(reflectedLightDirection, unitVectorToCamera);
@@ -54,8 +54,7 @@ void main(void){
 		totalSpecular += dampedFactor * lightColour[i] * reflectivity;
 	}
 
-	totalDiffuse = max(totalDiffuse / 2, 0.2);
-	totalSpecular /= 2;
+	totalDiffuse = max(totalDiffuse, 0.1);
 
 	out_Color = vec4(totalDiffuse, 1.0) * totalColour + vec4(totalSpecular, 1.0);
 	out_Color = mix(vec4(skyColour, 1.0), out_Color, visibility);
