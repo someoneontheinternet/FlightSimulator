@@ -1,7 +1,7 @@
 #version 400 core
 
 in vec2 pass_textureCoords;
-in vec3 surfaceNormal;
+flat in vec3 surfaceNormal;
 in vec3 toLightVector[4];
 in vec3 toCameraVector;
 in float visibility;
@@ -54,7 +54,9 @@ void main(void){
 		totalSpecular += dampedFactor * lightColour[i] * reflectivity;
 	}
 
-	totalDiffuse = max(totalDiffuse, 0.1);
+	totalDiffuse = max(totalDiffuse, 0.05);
+
+	totalColour = vec4(1, 0.5, 0.5, 1);
 
 	out_Color = vec4(totalDiffuse, 1.0) * totalColour + vec4(totalSpecular, 1.0);
 	out_Color = mix(vec4(skyColour, 1.0), out_Color, visibility);
