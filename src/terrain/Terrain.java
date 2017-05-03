@@ -16,7 +16,7 @@ import utils.Maths;
 
 public class Terrain {
 
-	public static final float SIZE = 800;
+	public static final float SIZE = 1600;
 	private static final float MAX_HEIGHT = 40;
 	private static final float MAX_PIXEL_COLOUR = 255 * 255 * 255;
 
@@ -47,8 +47,6 @@ public class Terrain {
 		float ans = (float) Math.sqrt( dx  + dz );
 		
 		return ans;
-		
-		
 	}
 	
 	public float getX() {

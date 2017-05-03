@@ -77,6 +77,7 @@ public class MasterRenderer {
 		terrainShader.loadViewMatrix(camera);
 		terrainRenderer.render(terrains);
 		terrainShader.stop();
+		
 		terrains.clear();
 		entities.clear();
 	}
