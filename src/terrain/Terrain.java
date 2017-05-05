@@ -1,10 +1,5 @@
 package terrain;
 
-import java.awt.image.BufferedImage;
-import java.io.File;
-
-import javax.imageio.ImageIO;
-
 import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -16,9 +11,7 @@ import utils.Maths;
 
 public class Terrain {
 
-	public static final float SIZE = 800;
-	private static final float MAX_HEIGHT = 40;
-	private static final float MAX_PIXEL_COLOUR = 255 * 255 * 255;
+	public static final float SIZE = 1600 * 2;
 
 	private float x;
 	private float z;
@@ -40,15 +33,15 @@ public class Terrain {
 	public float calculateDistanceFrom(float x, float z) {
 		float terrainOriginX = (float) Math.abs((this.x + this.x + SIZE) / 2);
 		float terrainOriginZ = (float) Math.abs((this.z + this.z + SIZE) / 2);
-		
+
 		float dx = (float) Math.pow(Math.abs(terrainOriginX - x), 2);
 		float dz = (float) Math.pow(Math.abs(terrainOriginZ - z), 2);
-		
-		float ans = (float) Math.sqrt( dx  + dz );
-		
+
+		float ans = (float) Math.sqrt(dx + dz);
+
 		return ans;
 	}
-	
+
 	public float getX() {
 		return x;
 	}
@@ -71,16 +64,9 @@ public class Terrain {
 
 	private RawModel generateTerrain(Loader loader, String heightMap) {
 
-		BufferedImage image = null;
+		HeightsGenerator generator = new HeightsGenerator();
 
-		try {
-			image = ImageIO.read(new File("res/model/" + heightMap + ".png"));
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(-1);
-		}
-
-		int VERTEX_COUNT = image.getHeight();
+		int VERTEX_COUNT = 256;
 
 		int count = VERTEX_COUNT * VERTEX_COUNT;
 
@@ -96,14 +82,14 @@ public class Terrain {
 				vertices[vertexPointer * 3] = (float) j / ((float) VERTEX_COUNT - 1) * SIZE;
 
 				// gen height
-				float height = getHeight(j, i, image);
+				float height = getHeight(j, i, generator);
 				heights[j][i] = height;
 
 				vertices[vertexPointer * 3 + 1] = height;
-				
+
 				vertices[vertexPointer * 3 + 2] = (float) i / ((float) VERTEX_COUNT - 1) * SIZE;
 
-				Vector3f normal = calculateNormal(j, i, image);
+				Vector3f normal = calculateNormal(j, i, generator);
 
 				normals[vertexPointer * 3] = normal.x;
 				normals[vertexPointer * 3 + 1] = normal.y;
@@ -131,12 +117,12 @@ public class Terrain {
 		return loader.loadToVAO(vertices, textureCoords, normals, indices);
 	}
 
-	private Vector3f calculateNormal(int x, int z, BufferedImage image) {
+	private Vector3f calculateNormal(int x, int z, HeightsGenerator generator) {
 
-		float heightL = getHeight(x - 1, z, image);
-		float heightR = getHeight(x + 1, z, image);
-		float heightD = getHeight(x, z - 1, image);
-		float heightU = getHeight(x, z + 1, image);
+		float heightL = getHeight(x - 1, z, generator);
+		float heightR = getHeight(x + 1, z, generator);
+		float heightD = getHeight(x, z - 1, generator);
+		float heightU = getHeight(x, z + 1, generator);
 
 		Vector3f normal = new Vector3f(heightL - heightR, 2f, heightD - heightU);
 		normal.normalise();
@@ -163,38 +149,38 @@ public class Terrain {
 		float zCoord = (terrainZ % gridSquareSize);
 
 		float answer = 0;
-
-		if (xCoord <= (1 - zCoord)) {
-			try {
-				answer = Maths.barryCentric(new Vector3f(0, heights[gridX][gridZ], 0),
-						new Vector3f(1, heights[gridX + 1][gridZ], 0), new Vector3f(0, heights[gridX][gridZ + 1], 1),
-						new Vector2f(xCoord, zCoord));
-			} catch (Exception e) {
-			}
-		} else {
-			try {
-				answer = Maths.barryCentric(new Vector3f(1, heights[gridX + 1][gridZ], 0),
-						new Vector3f(1, heights[gridX + 1][gridZ + 1], 1),
-						new Vector3f(0, heights[gridX][gridZ + 1], 1), new Vector2f(xCoord, zCoord));
-			} catch (Exception e) {
-			}
+		
+		try {
+			answer += heights[gridX][gridZ];
+			answer += heights[gridX + 1][gridZ];
+			answer += heights[gridX][gridZ + 1];
+			answer += heights[gridX + 1][gridZ + 1];
+			answer /= 4f;
+		} catch (Exception e) {
 		}
+		
+//		if (xCoord <= (1 - zCoord)) {
+//			try {
+//				answer = Maths.barryCentric(new Vector3f(0, heights[gridX][gridZ], 0),
+//						new Vector3f(1, heights[gridX + 1][gridZ], 0), new Vector3f(0, heights[gridX][gridZ + 1], 1),
+//						new Vector2f(xCoord, zCoord));
+//			} catch (Exception e) {
+//			}
+//		} else {
+//			try {
+//				answer = Maths.barryCentric(new Vector3f(1, heights[gridX + 1][gridZ], 0),
+//						new Vector3f(1, heights[gridX + 1][gridZ + 1], 1),
+//						new Vector3f(0, heights[gridX][gridZ + 1], 1), new Vector2f(xCoord, zCoord));
+//			} catch (Exception e) {
+//			}
+//		}
 
 		return answer;
 
 	}
 
-	private float getHeight(int x, int z, BufferedImage image) {
-
-		if (x < 0 || x >= image.getHeight() || z < 0 || z >= image.getHeight()) {
-			return 0;
-		}
-
-		int color = image.getRGB(x, z);
-		float height = ((float) (color & 0xff)) / 3f - 42f;
-
-		return height;
-
+	private float getHeight(int x, int z, HeightsGenerator generator) {
+		return generator.generateHeight(x, z);
 	}
 
 }

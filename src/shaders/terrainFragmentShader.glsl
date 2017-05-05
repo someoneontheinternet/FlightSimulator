@@ -29,7 +29,6 @@ void main(void){
 
 	// Terrain Texture Color
 	vec4 totalColour = backgroundTextureColour + rTextureColour + gTextureColour + bTextureColour;
-	totalColour = vec4(1, 0.5, 0.5, 1);
 	totalColour -= vec4(diffuse, 1);
 
 	out_Color = totalColour + vec4(specular, 1.0);

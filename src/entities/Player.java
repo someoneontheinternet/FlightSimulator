@@ -11,7 +11,7 @@ public class Player extends Entity {
 
 	private static float RUN_SPEED = -45;
 	private static final float TURN_SPEED = 45;
-	private static final float GRAVITY = -9.8f;
+	private static final float GRAVITY = -9.8f / 4f;
 
 	private static final float DRAG = -20;
 	
@@ -24,28 +24,11 @@ public class Player extends Entity {
 	public Player(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ, float scale) {
 		super(model, position, rotX, rotY, rotZ, scale);
 	}
-
-	private float calculateLift(float velocity) {
-		
-		velocity = Math.abs(velocity);
-		return (float) (Math.log(velocity + 1) + 0.02 * velocity);
-		
-	}
 	
 	public void move(Terrain terrain) {
 		checkInputs();
 		
 		float frameSeconds = DisplayManager.getFrameTimeSeconds();
-		
-		velocity += acceleration * frameSeconds;
-		velocity -= DRAG * frameSeconds;
-		
-		if (velocity >= 0)
-			velocity = 0;
-		
-		if (velocity < -600) {
-			velocity = -600;
-		}
 		
 		// Calculate Lift
 		//uVelocity = calculateLift(velocity) * frameSeconds;
@@ -57,13 +40,12 @@ public class Player extends Entity {
 		float dz = (float) (distance * Math.cos(Math.toRadians(super.getRotY())));
 		super.increasePosition(dx, 0, dz);
 
-		float terrainHeight = terrain.getHeightOfTerrain(super.getPosition().x, super.getPosition().z);
-		
 		uVelocity += GRAVITY * frameSeconds;
-		
+
+		float terrainHeight = terrain.getHeightOfTerrain(super.getPosition().x, super.getPosition().z);
 		super.increasePosition(0, uVelocity, 0);
-		if (super.getPosition().y < terrainHeight + 2) {
-			super.getPosition().y = terrainHeight + 2;
+		if (super.getPosition().y < terrainHeight + 1.5f) {
+			super.getPosition().y = terrainHeight + 1.5f;
 			uVelocity = 0;
 		}
 
@@ -78,11 +60,11 @@ public class Player extends Entity {
 		}
 		
 		if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
-			this.acceleration = RUN_SPEED;
+			this.velocity = RUN_SPEED;
 		} else if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
-			this.acceleration = (float) ((-0.5) * RUN_SPEED);
+			this.velocity = (float) ((-0.5) * RUN_SPEED);
 		} else {
-			this.acceleration = 0;
+			this.velocity = 0;
 		}
 		
 		if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
@@ -93,6 +75,10 @@ public class Player extends Entity {
 			this.rotY = 0;
 		}
 		
+	}
+	
+	public String toString() {
+		return getPosition().toString();
 	}
 
 }

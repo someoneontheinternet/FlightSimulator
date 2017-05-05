@@ -85,16 +85,23 @@ public class Main {
 		System.out.println("Generating Terrain...");
 		Display.setTitle(title + " | Generating Terrain: 0%");
 		ArrayList<Terrain> terrainList = new ArrayList<>();
-		int terrainCount = 2;
+		int terrainCount = 1;
+		int totalTerrainCount = (terrainCount * 2 + 1) * (terrainCount * 2 + 1);
+		
 		for (int i = -terrainCount; i <= terrainCount; i++) {
 			for (int j = -terrainCount; j <= terrainCount; j++) {
 				Terrain terrain = new Terrain(i, j, loader, ttp, blendMap, "height-map");
 				terrainList.add(terrain);
+				String percent = "" + (((float) terrainList.size() / (float) totalTerrainCount)) * 100;
+	
+				if (percent.length() > 5) 
+					percent = percent.substring(0, 5);
+				 
+				Display.setTitle(title + " | " + "Generating Terrain: " + percent + "%"); 
+				
 			}
-			Display.setTitle(title + " | Generating Terrain: "
-					+ ((double) (i + terrainCount) / (double) (terrainCount * 2)) * 100 + "%");
 		}
-		
+
 		// Trees
 		ArrayList<Entity> treeList = new ArrayList<>();
 
@@ -121,16 +128,20 @@ public class Main {
 
 			float playerX = player.getPosition().x;
 			float playerZ = player.getPosition().z;
-
+			float playerY = player.getPosition().y;
+			
 			// set render distance origin
 			renderer.setOrigin(playerX, playerZ);
-
+			
 			for (Terrain t : terrainList) {
 				// Adding to terrain render queue
 				renderer.processTerrain(t);
 			}
 
-			player.move(onTerrain(terrainList, playerX, playerZ));
+			Terrain playerOn = onTerrain(terrainList, playerX, playerZ);
+			//System.out.println(player);
+			//System.out.println(playerOn.getX() + " " + playerOn.getZ());
+			player.move(playerOn);
 			camera.move();
 
 			// Adding to render queue
@@ -151,9 +162,6 @@ public class Main {
 					total += time;
 				// System.out.println("Frame time: " + (total / 10) * 1000 +
 				// "ms");
-				System.out.println("Vel: " + player.velocity);
-				System.out.println("Acc: " + player.acceleration);
-				System.out.println("UpV: " + player.uVelocity);
 
 				averageFrameTime.clear();
 			}
