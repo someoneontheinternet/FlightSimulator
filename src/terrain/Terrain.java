@@ -16,7 +16,7 @@ import utils.Maths;
 
 public class Terrain {
 
-	public static final float SIZE = 1600;
+	public static final float SIZE = 800;
 	private static final float MAX_HEIGHT = 40;
 	private static final float MAX_PIXEL_COLOUR = 255 * 255 * 255;
 
@@ -100,6 +100,7 @@ public class Terrain {
 				heights[j][i] = height;
 
 				vertices[vertexPointer * 3 + 1] = height;
+				
 				vertices[vertexPointer * 3 + 2] = (float) i / ((float) VERTEX_COUNT - 1) * SIZE;
 
 				Vector3f normal = calculateNormal(j, i, image);

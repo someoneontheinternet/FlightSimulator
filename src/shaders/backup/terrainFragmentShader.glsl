@@ -8,7 +8,12 @@ in float visibility;
 
 out vec4 out_Color;
 
-uniform sampler2D textureSampler;
+uniform sampler2D backgroundTexture;
+uniform sampler2D rTexture;
+uniform sampler2D gTexture;
+uniform sampler2D bTexture;
+uniform sampler2D blendMap;
+
 uniform vec3 lightColour[4];
 uniform float shineDamper;
 uniform float reflectivity;
@@ -16,6 +21,19 @@ uniform vec3 skyColour;
 
 void main(void){
 
+	// Terrain Texture
+	vec4 blendMapColour = texture(blendMap, pass_textureCoords);
+	float backTextureAmount = 1 - (blendMapColour.r + blendMapColour.g + blendMapColour.b);
+	vec2 tiledCoords = pass_textureCoords * 40.0;
+	vec4 backgroundTextureColour = texture(backgroundTexture, tiledCoords) * backTextureAmount;
+	vec4 rTextureColour = texture(rTexture, tiledCoords) * blendMapColour.r;
+	vec4 gTextureColour = texture(gTexture, tiledCoords) * blendMapColour.g;
+	vec4 bTextureColour = texture(bTexture, tiledCoords) * blendMapColour.b;
+
+	// Terrain Texture Color
+	vec4 totalColour = backgroundTextureColour + rTextureColour + gTextureColour + bTextureColour;
+
+	// Diffuse Lighting Calculation
 	vec3 unitNormal = normalize(surfaceNormal);
 	vec3 unitVectorToCamera = normalize(toCameraVector);
 
@@ -30,21 +48,15 @@ void main(void){
 		vec3 reflectedLightDirection = reflect(lightDirection, unitNormal);
 		float specularFactor = dot(reflectedLightDirection, unitVectorToCamera);
 		specularFactor = max(specularFactor, 0.0);
-
 		float dampedFactor = pow(specularFactor, shineDamper);
 
 		totalDiffuse += brightness * lightColour[i];
 		totalSpecular += dampedFactor * lightColour[i] * reflectivity;
 	}
 
-	totalDiffuse = max(totalDiffuse, 0.1);
+	totalDiffuse = max(totalDiffuse, 0.05);
 
-	vec4 textureColour = texture(textureSampler, pass_textureCoords);
-	if (textureColour.a < 0.5) {
-		discard;
-	}
-
-	out_Color = vec4(totalDiffuse, 1.0) * texture(textureSampler, pass_textureCoords) + vec4(totalSpecular, 1.0);
+	out_Color = vec4(totalDiffuse, 1.0) * totalColour + vec4(totalSpecular, 1.0);
 	out_Color = mix(vec4(skyColour, 1.0), out_Color, visibility);
 
 }

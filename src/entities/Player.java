@@ -9,23 +9,49 @@ import terrain.Terrain;
 
 public class Player extends Entity {
 
-	private static final float RUN_SPEED = 60;
+	private static float RUN_SPEED = -45;
 	private static final float TURN_SPEED = 45;
-	private static final float GRAVITY = -2.9f;
+	private static final float GRAVITY = -9.8f;
 
-	private float currentSpeed = 0;
-	private float currentTurnSpeed = 0;
-	private float upwardsSpeed = 0;
-	private boolean isInAir = false;
-
+	private static final float DRAG = -20;
+	
+	public float velocity = 0;
+	public float rotY = 0;
+	public float uVelocity = 0;
+	
+	public float acceleration = 0;
+	
 	public Player(TexturedModel model, Vector3f position, float rotX, float rotY, float rotZ, float scale) {
 		super(model, position, rotX, rotY, rotZ, scale);
 	}
 
+	private float calculateLift(float velocity) {
+		
+		velocity = Math.abs(velocity);
+		return (float) (Math.log(velocity + 1) + 0.02 * velocity);
+		
+	}
+	
 	public void move(Terrain terrain) {
 		checkInputs();
-		super.increaseRotation(0, currentTurnSpeed * DisplayManager.getFrameTimeSeconds(), 0);
-		float distance = currentSpeed * DisplayManager.getFrameTimeSeconds();
+		
+		float frameSeconds = DisplayManager.getFrameTimeSeconds();
+		
+		velocity += acceleration * frameSeconds;
+		velocity -= DRAG * frameSeconds;
+		
+		if (velocity >= 0)
+			velocity = 0;
+		
+		if (velocity < -600) {
+			velocity = -600;
+		}
+		
+		// Calculate Lift
+		//uVelocity = calculateLift(velocity) * frameSeconds;
+		
+		super.increaseRotation(0, rotY * frameSeconds, 0);
+		float distance = velocity * frameSeconds;
 
 		float dx = (float) (distance * Math.sin(Math.toRadians(super.getRotY())));
 		float dz = (float) (distance * Math.cos(Math.toRadians(super.getRotY())));
@@ -33,40 +59,40 @@ public class Player extends Entity {
 
 		float terrainHeight = terrain.getHeightOfTerrain(super.getPosition().x, super.getPosition().z);
 		
-		upwardsSpeed += GRAVITY * DisplayManager.getFrameTimeSeconds();
-		super.increasePosition(0, upwardsSpeed, 0);
+		uVelocity += GRAVITY * frameSeconds;
+		
+		super.increasePosition(0, uVelocity, 0);
 		if (super.getPosition().y < terrainHeight + 2) {
 			super.getPosition().y = terrainHeight + 2;
-			upwardsSpeed = 0;
-			isInAir = false;
+			uVelocity = 0;
 		}
 
-	}
-
-	private void jump() {
-		if (!isInAir) {
-			this.upwardsSpeed = 2f;
-			isInAir = true;
-		}
 	}
 
 	private void checkInputs() {
+		
+		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+			RUN_SPEED = -75;
+		} else {
+			RUN_SPEED = -45;
+		}
+		
 		if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
-			this.currentSpeed = -RUN_SPEED;
+			this.acceleration = RUN_SPEED;
 		} else if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
-			this.currentSpeed = RUN_SPEED;
+			this.acceleration = (float) ((-0.5) * RUN_SPEED);
 		} else {
-			this.currentSpeed = 0;
+			this.acceleration = 0;
 		}
-
-		if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
-			this.currentTurnSpeed = -TURN_SPEED;
-		} else if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
-			this.currentTurnSpeed = TURN_SPEED;
+		
+		if (Keyboard.isKeyDown(Keyboard.KEY_A)) {
+			this.rotY = TURN_SPEED;
+		} else if (Keyboard.isKeyDown(Keyboard.KEY_D)) {
+			this.rotY = -TURN_SPEED;
 		} else {
-			this.currentTurnSpeed = 0;
+			this.rotY = 0;
 		}
-
+		
 	}
 
 }

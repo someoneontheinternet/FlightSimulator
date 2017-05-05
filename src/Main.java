@@ -28,37 +28,15 @@ public class Main {
 
 	public static void main(String[] args) {
 
+		String title = "Flight Simulator | v0.0.1";
 		Random r = new Random();
 
 		// Creating Window
 		System.out.println("Creating Window...");
 		DisplayManager.createDisplay();
+		Display.setTitle(title);
 		Loader loader = new Loader();
-		
-		// Terrain
-		System.out.println("Loading Terrain texture...");
-		TerrainTexture backgroundTexture = new TerrainTexture(loader.loadTexture("grassy"));
-		TerrainTexture rTexture = new TerrainTexture(loader.loadTexture("mud"));
-		TerrainTexture gTexture = new TerrainTexture(loader.loadTexture("grassFlowers"));
-		TerrainTexture bTexture = new TerrainTexture(loader.loadTexture("path"));
-		TerrainTexturePack ttp = new TerrainTexturePack(backgroundTexture, rTexture, gTexture, bTexture);
-		TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("blendMap"));
 
-		ArrayList<Terrain> terrainList = new ArrayList<>();
-
-		// Terrain Generation
-		
-		System.out.println("Generating Terrain...");
-		
-		int terrainCount = 1;
-		for (int i = -terrainCount; i <= terrainCount; i++) {
-			for (int j = -terrainCount; j <= terrainCount; j++) {
-				Terrain terrain = new Terrain(i, j, loader, ttp, blendMap, "height-map");
-				terrainList.add(terrain);
-			}
-			System.out.println(((double) (i + terrainCount) / (double) (terrainCount * 2)) * 100 + "%");
-		}
-		
 		System.out.println("Loading Models");
 
 		// Tree Model
@@ -81,6 +59,42 @@ public class Main {
 		texture.setShineDamper(20);
 		texture.setReflectivity(1);
 
+		Player player = new Player(staticModel, new Vector3f(0, 2, 0), 0, 0, 0, 1);
+
+		System.out.println("Setting up renderers...");
+
+		// Light
+		List<Light> lights = new ArrayList<>();
+		lights.add(new Light(new Vector3f(500, 5000, 500), new Vector3f(1f, 1f, 1f)));
+		lights.add(new Light(new Vector3f(-500, -5000, -500), new Vector3f(0.3f, 0.3f, 0.3f)));
+
+		Camera camera = new Camera(player);
+		MasterRenderer renderer = new MasterRenderer();
+
+		// Terrain
+		System.out.println("Loading Terrain texture...");
+		TerrainTexture backgroundTexture = new TerrainTexture(loader.loadTexture("grassy"));
+		TerrainTexture rTexture = new TerrainTexture(loader.loadTexture("mud"));
+		TerrainTexture gTexture = new TerrainTexture(loader.loadTexture("grassFlowers"));
+		TerrainTexture bTexture = new TerrainTexture(loader.loadTexture("path"));
+		TerrainTexturePack ttp = new TerrainTexturePack(backgroundTexture, rTexture, gTexture, bTexture);
+		TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("blendMap"));
+
+		// Terrain Generation
+
+		System.out.println("Generating Terrain...");
+		Display.setTitle(title + " | Generating Terrain: 0%");
+		ArrayList<Terrain> terrainList = new ArrayList<>();
+		int terrainCount = 2;
+		for (int i = -terrainCount; i <= terrainCount; i++) {
+			for (int j = -terrainCount; j <= terrainCount; j++) {
+				Terrain terrain = new Terrain(i, j, loader, ttp, blendMap, "height-map");
+				terrainList.add(terrain);
+			}
+			Display.setTitle(title + " | Generating Terrain: "
+					+ ((double) (i + terrainCount) / (double) (terrainCount * 2)) * 100 + "%");
+		}
+		
 		// Trees
 		ArrayList<Entity> treeList = new ArrayList<>();
 
@@ -95,21 +109,11 @@ public class Main {
 			treeList.add(treeModel);
 		}
 
-		Player player = new Player(staticModel, new Vector3f(0, 2, 0), 0, 0, 0, 1);
-
-		System.out.println("Setting up renderers...");
-		
-		// Light
-		List<Light> lights = new ArrayList<>();
-		lights.add(new Light(new Vector3f(500, 10000, 500), new Vector3f(1f, 1f, 1f)));
-		lights.add(new Light(new Vector3f(-500, -10000, -500), new Vector3f(0.3f, 0.3f, 0.3f)));
-
-		Camera camera = new Camera(player);
-		MasterRenderer renderer = new MasterRenderer();
-
 		System.out.println("Starting Gameloop:");
-		
+
 		List<Float> averageFrameTime = new ArrayList<>();
+
+		Display.setTitle(title);
 		
 		while (!Display.isCloseRequested()) {
 
@@ -138,22 +142,27 @@ public class Main {
 			}
 
 			renderer.render(lights, camera);
-			
+
 			if (averageFrameTime.size() < 10) {
 				averageFrameTime.add(DisplayManager.getFrameTimeSeconds());
 			} else {
 				float total = 0;
 				for (float time : averageFrameTime)
 					total += time;
-				System.out.println("Frame time: " + (total / 10) * 1000 + "ms");	
-				averageFrameTime.clear();			
+				// System.out.println("Frame time: " + (total / 10) * 1000 +
+				// "ms");
+				System.out.println("Vel: " + player.velocity);
+				System.out.println("Acc: " + player.acceleration);
+				System.out.println("UpV: " + player.uVelocity);
+
+				averageFrameTime.clear();
 			}
-			
+
 			DisplayManager.updateDisplay();
 		}
 
 		System.out.println("Exiting Game Loop.");
-		
+
 		renderer.cleanUp();
 
 		loader.cleanUp();
