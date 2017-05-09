@@ -44,11 +44,12 @@ public class Player extends Entity {
 
 		float terrainHeight = terrain.getHeightOfTerrain(super.getPosition().x, super.getPosition().z);
 		super.increasePosition(0, uVelocity, 0);
+		
 		if (super.getPosition().y < terrainHeight + 1.5f) {
 			super.getPosition().y = terrainHeight + 1.5f;
 			uVelocity = 0;
 		}
-
+		
 	}
 
 	private void checkInputs() {

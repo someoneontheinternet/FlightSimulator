@@ -11,7 +11,7 @@ import utils.Maths;
 
 public class Terrain {
 
-	public static final float SIZE = 1600 * 2;
+	public static final float SIZE = 1600;
 
 	private float x;
 	private float z;
@@ -66,7 +66,7 @@ public class Terrain {
 
 		HeightsGenerator generator = new HeightsGenerator();
 
-		int VERTEX_COUNT = 256;
+		int VERTEX_COUNT = 200;
 
 		int count = VERTEX_COUNT * VERTEX_COUNT;
 
@@ -82,7 +82,7 @@ public class Terrain {
 				vertices[vertexPointer * 3] = (float) j / ((float) VERTEX_COUNT - 1) * SIZE;
 
 				// gen height
-				float height = getHeight(j, i, generator);
+				float height = getHeight(j, i, generator) + (float) Math.random();
 				heights[j][i] = height;
 
 				vertices[vertexPointer * 3 + 1] = height;

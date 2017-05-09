@@ -9,6 +9,7 @@ out float visibility;
 
 flat out vec3 diffuse;
 flat out vec3 specular;
+flat out vec4 vertexColour;
 
 uniform mat4 transformationMatrix;
 uniform mat4 projectionMatrix;
@@ -17,6 +18,12 @@ uniform vec3 lightPosition[4];
 uniform vec3 lightColour[4];
 uniform float shineDamper;
 uniform float reflectivity;
+
+uniform sampler2D backgroundTexture;
+uniform sampler2D rTexture;
+uniform sampler2D gTexture;
+uniform sampler2D bTexture;
+uniform sampler2D blendMap;
 
 const float density = 0.0025;
 const float gradient = 10;
@@ -73,7 +80,19 @@ void main(void){
 
 	diffuse = clamp(diffuse, 0, 1);
 	diffuse = (1 - diffuse) * 0.2 - 0.1;
-	specular = vec3(0.015);
+	specular = vec3(0.03);
+
+	// Terrain Texture
+	vec4 blendMapColour = texture(blendMap, pass_textureCoords);
+	float backTextureAmount = 1 - (blendMapColour.r + blendMapColour.g + blendMapColour.b);
+	vec2 tiledCoords = pass_textureCoords * 40.0;
+	vec4 backgroundTextureColour = texture(backgroundTexture, tiledCoords) * backTextureAmount;
+	vec4 rTextureColour = texture(rTexture, tiledCoords) * blendMapColour.r;
+	vec4 gTextureColour = texture(gTexture, tiledCoords) * blendMapColour.g;
+	vec4 bTextureColour = texture(bTexture, tiledCoords) * blendMapColour.b;
+
+	// Terrain Texture Color
+	vertexColour = backgroundTextureColour + rTextureColour + gTextureColour + bTextureColour;
 
 	// End of Shader Code
 

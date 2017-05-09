@@ -28,7 +28,7 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		String title = "Flight Simulator | v0.0.1";
+		String title = "Explorer.exe | v0.0.1";
 		Random r = new Random();
 
 		// Creating Window
@@ -38,16 +38,6 @@ public class Main {
 		Loader loader = new Loader();
 
 		System.out.println("Loading Models");
-
-		// Tree Model
-		ModelData dTree = OBJLoader.loadOBJ("cherry-tree");
-		RawModel dTreeModel = loader.loadToVAO(dTree.getVertices(), dTree.getTextureCoords(), dTree.getNormals(),
-				dTree.getIndices());
-		TexturedModel staticDTree = new TexturedModel(dTreeModel,
-				new ModelTexture(loader.loadTexture("cherry-texture")));
-		ModelTexture dTreeTexture = staticDTree.getTexture();
-		dTreeTexture.setShineDamper(50);
-		dTreeTexture.setReflectivity(1);
 
 		// Fighter Jet
 		ModelData fj = OBJLoader.loadOBJ("fighter-jet");
@@ -73,10 +63,10 @@ public class Main {
 
 		// Terrain
 		System.out.println("Loading Terrain texture...");
-		TerrainTexture backgroundTexture = new TerrainTexture(loader.loadTexture("grassy"));
-		TerrainTexture rTexture = new TerrainTexture(loader.loadTexture("mud"));
-		TerrainTexture gTexture = new TerrainTexture(loader.loadTexture("grassFlowers"));
-		TerrainTexture bTexture = new TerrainTexture(loader.loadTexture("path"));
+		TerrainTexture backgroundTexture = new TerrainTexture(loader.loadTexture("green-grass"));
+		TerrainTexture rTexture = new TerrainTexture(loader.loadTexture("darkgreen-grass"));
+		TerrainTexture gTexture = new TerrainTexture(loader.loadTexture("brown-dirt"));
+		TerrainTexture bTexture = new TerrainTexture(loader.loadTexture("fadedgreen-grass"));
 		TerrainTexturePack ttp = new TerrainTexturePack(backgroundTexture, rTexture, gTexture, bTexture);
 		TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("blendMap"));
 
@@ -85,7 +75,7 @@ public class Main {
 		System.out.println("Generating Terrain...");
 		Display.setTitle(title + " | Generating Terrain: 0%");
 		ArrayList<Terrain> terrainList = new ArrayList<>();
-		int terrainCount = 1;
+		int terrainCount = 0;
 		int totalTerrainCount = (terrainCount * 2 + 1) * (terrainCount * 2 + 1);
 		
 		for (int i = -terrainCount; i <= terrainCount; i++) {
@@ -101,24 +91,105 @@ public class Main {
 				
 			}
 		}
+		
+		// Tree Model
+		ModelData dTree = OBJLoader.loadOBJ("cherry-tree");
+		RawModel dTreeModel = loader.loadToVAO(dTree.getVertices(), dTree.getTextureCoords(), dTree.getNormals(),
+				dTree.getIndices());
+		TexturedModel staticDTree = new TexturedModel(dTreeModel,
+				new ModelTexture(loader.loadTexture("cherry-texture")));
+		ModelTexture dTreeTexture = staticDTree.getTexture();
+		dTreeTexture.setShineDamper(50);
+		dTreeTexture.setReflectivity(1);
 
 		// Trees
 		ArrayList<Entity> treeList = new ArrayList<>();
 
-		for (int i = 0; i < 1000; i++) {
-			float rx = (float) ((Math.random() - 0.5f) * 1000);
-			float rz = (float) ((Math.random() - 0.5f) * 1000);
+		for (int i = 0; i < 50000; i++) {
+			float rx = (float) ((Math.random() - 0.5f) * 10000);
+			float rz = (float) ((Math.random() - 0.5f) * 10000);
 
 			float y = onTerrain(terrainList, rx, rz).getHeightOfTerrain(rx, rz);
 			Entity treeModel = new Entity(staticDTree, new Vector3f(rx, y - 1f, rz), 0, (float) (Math.random() * 360),
-					0, (float) ((Math.random() * 0.2) + 0.9f));
+					0, (float) (Math.random() * 0.5 + 1.2));
 
 			treeList.add(treeModel);
 		}
+		
+		// Grass Model
+		ModelData grass = OBJLoader.loadOBJ("grass");
+		RawModel grassModel = loader.loadToVAO(grass.getVertices(), grass.getTextureCoords(), grass.getNormals(),
+				grass.getIndices());
+		TexturedModel staticGrassModel = new TexturedModel(grassModel,
+				new ModelTexture(loader.loadTexture("grass-texture")));
+		ModelTexture grassModelTexture = staticGrassModel.getTexture();
+		grassModelTexture.setShineDamper(50);
+		grassModelTexture.setReflectivity(1);
+		grassModelTexture.setUseFalseLighting(true);
 
+		// Grass
+		ArrayList<Entity> grassList = new ArrayList<>();
+
+		for (int i = 0; i < 400000; i++) {
+			float rx = (float) ((Math.random() - 0.5f) * 10000);
+			float rz = (float) ((Math.random() - 0.5f) * 10000);
+
+			float y = onTerrain(terrainList, rx, rz).getHeightOfTerrain(rx, rz);
+			Entity grassObj = new Entity(staticGrassModel, new Vector3f(rx, y - 0, rz), 0, (float) (Math.random() * 360),
+					0, (float) (2 + (Math.random() * 0.1)));
+
+			grassList.add(grassObj);
+		}
+
+		// large tree
+		ModelData spruceTree = OBJLoader.loadOBJ("spruce-tree");
+		RawModel spruceModel = loader.loadToVAO(spruceTree.getVertices(), spruceTree.getTextureCoords(), spruceTree.getNormals(),
+				spruceTree.getIndices());
+		TexturedModel staticSpruceModel = new TexturedModel(spruceModel,
+				new ModelTexture(loader.loadTexture("spruce-texture")));
+		ModelTexture spruceTextureModel = staticSpruceModel.getTexture();
+		spruceTextureModel.setShineDamper(50);
+		spruceTextureModel.setReflectivity(1);
+		spruceTextureModel.setUseFalseLighting(true);
+		
+		ArrayList<Entity> spruceList = new ArrayList<>();
+
+		for (int i = 0; i < 100000; i++) {
+			float rx = (float) ((Math.random() - 0.5f) * 10000);
+			float rz = (float) ((Math.random() - 0.5f) * 10000);
+
+			float y = onTerrain(terrainList, rx, rz).getHeightOfTerrain(rx, rz);
+			Entity spruceObj = new Entity(staticSpruceModel, new Vector3f(rx, y + 0.1f, rz), 0, (float) (Math.random() * 360),
+					0, (float) ((Math.random() * 0.5) + 2.3));
+
+			spruceList.add(spruceObj);
+		}
+		
+		// rock
+		ModelData rockData = OBJLoader.loadOBJ("rock");
+		RawModel rockModel = loader.loadToVAO(rockData.getVertices(), rockData.getTextureCoords(), rockData.getNormals(),
+				rockData.getIndices());
+		TexturedModel staticRockModel = new TexturedModel(rockModel,
+				new ModelTexture(loader.loadTexture("rock-texture")));
+		ModelTexture rockTextureModel = staticRockModel.getTexture();
+		rockTextureModel.setShineDamper(50);
+		rockTextureModel.setReflectivity(1);
+		
+		ArrayList<Entity> rockList = new ArrayList<>();
+
+		for (int i = 0; i < 50000; i++) {
+			float rx = (float) ((Math.random() - 0.5f) * 10000);
+			float rz = (float) ((Math.random() - 0.5f) * 10000);
+
+			float y = onTerrain(terrainList, rx, rz).getHeightOfTerrain(rx, rz);
+			Entity rockObj = new Entity(staticRockModel, new Vector3f(rx, y + 0.1f, rz), 0, (float) (Math.random() * 360),
+					0, (float) (Math.random() + 5.3));
+
+			spruceList.add(rockObj);
+		}
+		
+		
 		System.out.println("Starting Gameloop:");
-
-		List<Float> averageFrameTime = new ArrayList<>();
 
 		Display.setTitle(title);
 		
@@ -147,24 +218,20 @@ public class Main {
 			// Adding to render queue
 			renderer.processEntity(player);
 
-			// Trees
-			for (Entity e : treeList) {
+			// Grass
+			for (Entity e : grassList) 
 				renderer.processEntity(e);
-			}
-
+			// Trees
+			for (Entity e : treeList)
+				renderer.processEntity(e);
+			// Spruce
+			for (Entity e : spruceList)
+				renderer.processEntity(e);
+			// Rock
+			for (Entity e : rockList) 
+				renderer.processEntity(e);
+			
 			renderer.render(lights, camera);
-
-			if (averageFrameTime.size() < 10) {
-				averageFrameTime.add(DisplayManager.getFrameTimeSeconds());
-			} else {
-				float total = 0;
-				for (float time : averageFrameTime)
-					total += time;
-				// System.out.println("Frame time: " + (total / 10) * 1000 +
-				// "ms");
-
-				averageFrameTime.clear();
-			}
 
 			DisplayManager.updateDisplay();
 		}
