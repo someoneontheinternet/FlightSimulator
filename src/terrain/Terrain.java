@@ -11,7 +11,7 @@ import utils.Maths;
 
 public class Terrain {
 
-	public static final float SIZE = 1600;
+	public static final float SIZE = 2400;
 
 	private float x;
 	private float z;
@@ -31,12 +31,10 @@ public class Terrain {
 	}
 
 	public float calculateDistanceFrom(float x, float z) {
-		float terrainOriginX = (float) Math.abs((this.x + this.x + SIZE) / 2);
-		float terrainOriginZ = (float) Math.abs((this.z + this.z + SIZE) / 2);
 
-		float dx = (float) Math.pow(Math.abs(terrainOriginX - x), 2);
-		float dz = (float) Math.pow(Math.abs(terrainOriginZ - z), 2);
-
+		float dx = x * x;
+		float dz = z * z;
+		
 		float ans = (float) Math.sqrt(dx + dz);
 
 		return ans;
@@ -181,6 +179,10 @@ public class Terrain {
 
 	private float getHeight(int x, int z, HeightsGenerator generator) {
 		return generator.generateHeight(x, z);
+	}
+	
+	public String toString() {
+		return "Terrain " + x + " : " + z;
 	}
 
 }

@@ -15,7 +15,7 @@ public class HeightsGenerator {
 
 	public float generateHeight(int x, int z) {
 		float total = getInterpolatedNoise(x / 16f, z / 16f) * AMPLITUDE;
-		total += getInterpolatedNoise(x / 3f, z / 3f) * AMPLITUDE / 5f;
+		total += getInterpolatedNoise(x / 3f, z / 3f) * AMPLITUDE / 3f;
 		return total;
 	}
 

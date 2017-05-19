@@ -28,12 +28,12 @@ void main(void){
 
 	vec3 actualNormal = normal;
 	if (useFakeLighting > 0.5) {
-		actualNormal = vec3(0.0, 1.0, 1.0);
+		actualNormal = vec3(0.0, 1.0, 0);
 	}
 
 	gl_Position = projectionMatrix * positionRelativeToCam;
 	pass_textureCoords = textureCoords;
-
+	
 	surfaceNormal = (transformationMatrix * vec4(normal, 0.0)).xyz;
 
 	for (int i = 0; i < 4; i++) {

@@ -5,6 +5,7 @@ in vec3 surfaceNormal;
 in vec3 toLightVector[4];
 in vec3 toCameraVector;
 in float visibility;
+in float fakeLighting;
 
 out vec4 out_Color;
 

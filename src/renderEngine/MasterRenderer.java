@@ -20,12 +20,12 @@ import terrain.Terrain;
 
 public class MasterRenderer {
 
-	private static final float RENDER_DISTANCE = 315;
+	private static final float RENDER_DISTANCE = 400;
 	private static final float TERRAIN_RENDER_DISTANCE = Terrain.SIZE * 2;
 	
 	private static final float FOV = 80;
 	private static final float NEAR_PLANE = 0.1f;
-	private static final float FAR_PLANE = 1000;
+	private static final float FAR_PLANE = 2000;
 
 	private static final float skyRED = 0.7f;
 	private static final float skyGREEN = 0.7f;
@@ -83,7 +83,8 @@ public class MasterRenderer {
 	}
 
 	public void processTerrain(Terrain terrain) {
-		if (terrain.calculateDistanceFrom(renderOriginX, renderOriginZ) < TERRAIN_RENDER_DISTANCE)
+		float distanceFromTerrain = terrain.calculateDistanceFrom(renderOriginX, renderOriginZ);
+		if (distanceFromTerrain < TERRAIN_RENDER_DISTANCE)
 			terrains.add(terrain);
 	}
 
