@@ -1,7 +1,21 @@
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.util.vector.Vector3f;
 
@@ -23,11 +37,113 @@ import utils.OBJLoader;
 
 public class Main {
 
+	private static volatile boolean wPressed = false;
+
+	public static boolean isWPressed() {
+		synchronized (Main.class) {
+			return wPressed;
+		}
+	}
+
+	public static void configure() {
+
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher() {
+
+			@Override
+			public boolean dispatchKeyEvent(KeyEvent ke) {
+				synchronized (Main.class) {
+					switch (ke.getID()) {
+					case KeyEvent.KEY_PRESSED:
+						if (ke.getKeyCode() == KeyEvent.VK_ENTER) {
+							wPressed = true;
+						}
+						break;
+
+					case KeyEvent.KEY_RELEASED:
+						if (ke.getKeyCode() == KeyEvent.VK_ENTER) {
+							wPressed = false;
+						}
+						break;
+					}
+					return false;
+				}
+			}
+		});
+
+		JFrame frame = new JFrame("Launcher");
+		frame.setSize(1024, 640);
+		frame.setLocationRelativeTo(null);
+
+		// Add components
+
+		try {
+			frame.setContentPane(new JLabel(new ImageIcon(ImageIO.read(new File("res/launcher-bg.jpg")))));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		frame.setVisible(true);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		long before = System.currentTimeMillis();
+		
+		while (frame.isVisible()) {
+			
+			long now = System.currentTimeMillis();
+			
+			if (isWPressed() || now - before > 20 * 1000) {
+				frame.setVisible(false);
+				break;
+			}
+		}
+	}
+
 	public static void main(String[] args) {
 
+		configure();
+
+		// Code to configure
+		
+		BufferedReader br = null;
+		try {
+			FileReader fr = new FileReader("settings.conf");
+			br = new BufferedReader(fr);
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+			quit();
+		}
+		
+		String settings = "";
+		String line = "";
+		
+		try {
+			while ((line = br.readLine()) != null) {
+				settings += line;
+			}
+		} catch (IOException e1) {
+			e1.printStackTrace();
+			quit();
+		}
+		
+		/// end of configuration
+		
+		int vWidth = settings.indexOf("=", settings.indexOf("vWidth=")) + 1;
+		int vHeight = settings.indexOf("=", settings.indexOf("vHeight=")) + 1;
+		int fpsCap = settings.indexOf("=", settings.indexOf("fpsCap=")) + 1;
+		int tCount = settings.indexOf("=", settings.indexOf("terrainSize=")) + 1;
+		
+		int width = Integer.parseInt(settings.substring(vWidth, settings.indexOf(";", vWidth)).trim());
+		int height = Integer.parseInt(settings.substring(vHeight, settings.indexOf(";", vHeight)).trim());
+		int fps = Integer.parseInt(settings.substring(fpsCap, settings.indexOf(";", fpsCap)).trim());
+		int tSize = Integer.parseInt(settings.substring(tCount, settings.indexOf(";", tCount)).trim());
+		
+		DisplayManager.FPS_CAP = fps;
+		DisplayManager.WIDTH = width;
+		DisplayManager.HEIGHT = height;
+		
 		float modelScaleOffset = 3.8f;
 		float globalEntityGenSpread = 30000f;
-		
+
 		String title = "Explorer.exe | v0.0.1";
 		Random r = new Random();
 
@@ -73,7 +189,10 @@ public class Main {
 		System.out.println("Generating Terrain...");
 		Display.setTitle(title + " | Generating Terrain: 0%");
 		ArrayList<Terrain> terrainList = new ArrayList<>();
-		int terrainCount = 2;
+		
+		// Set Terrain Count
+		int terrainCount = tSize;
+		
 		int totalTerrainCount = (terrainCount * 2 + 1) * (terrainCount * 2 + 1);
 
 		for (int i = -terrainCount; i <= terrainCount; i++) {
@@ -128,13 +247,13 @@ public class Main {
 		// Grass
 		ArrayList<Entity> grassList = new ArrayList<>();
 
-		for (int i = 0; i < 1000000; i++) {
+		for (int i = 0; i < 700000; i++) {
 			float rx = (float) ((Math.random() - 0.5f) * globalEntityGenSpread);
 			float rz = (float) ((Math.random() - 0.5f) * globalEntityGenSpread);
 
 			float y = onTerrain(terrainList, rx, rz).getHeightOfTerrain(rx, rz);
-			Entity grassObj = new Entity(staticGrassModel, new Vector3f(rx, y, rz), 0,
-					(float) (Math.random() * 360), 0, ((float) (2 + (Math.random() * 0.1)) * modelScaleOffset / 1.8f));
+			Entity grassObj = new Entity(staticGrassModel, new Vector3f(rx, y, rz), 0, (float) (Math.random() * 360), 0,
+					((float) (2 + (Math.random() * 0.1)) * modelScaleOffset / 1.8f));
 
 			grassList.add(grassObj);
 		}
@@ -187,17 +306,18 @@ public class Main {
 
 		System.out.println("Starting Gameloop:");
 
-		Display.setTitle(title);
+		Display.setTitle(title + " | Exit with: ESC");
 
-		boolean render = true;
-		
 		while (!Display.isCloseRequested()) {
+
+			if (Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
+				break;
+			}
 			
 			// find the terrain that player is on
 
 			float playerX = player.getPosition().x;
 			float playerZ = player.getPosition().z;
-			float playerY = player.getPosition().y;
 
 			// set render distance origin
 			renderer.setOrigin(playerX, playerZ);
@@ -225,11 +345,10 @@ public class Main {
 			// Rock
 			for (Entity e : rockList)
 				renderer.processEntity(e);
-			
-			if (render) {
-				renderer.render(lights, camera);
-				DisplayManager.updateDisplay();
-			}
+
+			renderer.render(lights, camera);
+			DisplayManager.updateDisplay();
+
 		}
 
 		System.out.println("Exiting Game Loop.");

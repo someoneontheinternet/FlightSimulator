@@ -45,6 +45,12 @@ public class Player extends Entity {
 		
 		//Keyboard input
 		
+		if (Keyboard.isKeyDown(Keyboard.KEY_LSHIFT)) {
+			RUN_SPEED = -65;
+		} else {
+			RUN_SPEED = -45;
+		}
+		
 		if (Keyboard.isKeyDown(Keyboard.KEY_W)) {
 			velocity = -RUN_SPEED;
 		} else if (Keyboard.isKeyDown(Keyboard.KEY_S)) {
