@@ -2,18 +2,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
-import org.lwjgl.util.vector.Vector2f;
 import org.lwjgl.util.vector.Vector3f;
 
 import entities.Camera;
 import entities.Entity;
 import entities.Light;
 import entities.Player;
-import guis.GUITexture;
-import guis.GuiRenderer;
 import models.RawModel;
 import models.TexturedModel;
 import renderEngine.DisplayManager;
@@ -75,11 +70,10 @@ public class Main {
 		TerrainTexture blendMap = new TerrainTexture(loader.loadTexture("blendMap2"));
 
 		// Terrain Generation
-
 		System.out.println("Generating Terrain...");
 		Display.setTitle(title + " | Generating Terrain: 0%");
 		ArrayList<Terrain> terrainList = new ArrayList<>();
-		int terrainCount = 1;
+		int terrainCount = 2;
 		int totalTerrainCount = (terrainCount * 2 + 1) * (terrainCount * 2 + 1);
 
 		for (int i = -terrainCount; i <= terrainCount; i++) {
